@@ -25,7 +25,7 @@ def dump(fp, keys="*", host='localhost', port=6379, password=None, db=0, pretty=
         fp.write("\n")
         key_count = key_count + 1
 
-    print key_count, ' keys dumped into the file'
+    print(key_count, ' keys dumped into the file')
 
 def load(fp, host='localhost', port=6379, password=None, db=0):
     r = redis.Redis(host=host, port=port, password=password, db=db)
@@ -46,11 +46,11 @@ def load(fp, host='localhost', port=6379, password=None, db=0):
             pipe = r.pipeline()
             size = 0
     pipe.execute()
-    print key_count, ' keys inserted into redis'
+    print(key_count, ' keys inserted into redis')
 
 def _reader(r, keys, pretty):
     kys = r.keys(keys)
-    #print len(kys), ' keys found'
+    #print(len(kys), ' keys found')
     for key in kys:
         type = r.type(key)
         if type == 'string':
@@ -93,22 +93,30 @@ def _writer(pipe, key, type, value):
         raise UnknownTypeError("Unknown key type: %s" % type)
 
 
-def opions_to_kwargs(options):
+def options_to_kwargs(options):
     args = {}
     if options.host:
         args['host'] = options.host
+    else:
+        args['host'] = 'localhost'
     if options.port:
         args['port'] = int(options.port)
+    else:
+        args['port'] = 6379
     if options.password: 
         args['password'] = options.password
     if options.db:
         args['db'] = int(options.db)
+    else:
+        args['db'] = 0
     if options.load:
         args['load'] = options.load
     if options.save:
         args['save'] = options.save
     if options.key:
         args['key'] = options.key
+    else:
+        args['key'] = '*'
     return args
 
 def generate_filename():
@@ -116,20 +124,20 @@ def generate_filename():
 
 def process(options):
 
-    args = opions_to_kwargs(options)
+    args = options_to_kwargs(options)
 
     if options.save  and options.load:
-        print 'either load or save option should be enabled'
+        print('either load or save option should be enabled')
     elif options.save:
         output = open(args['save'], 'w')
-        dump(output, args['key'] if options.key else "*", args['host'], args['port'], None, args['db'])
+        dump(output, args['key'], args['host'], args['port'], args['password'], args['db'])
         output.close()
     elif options.load:
         input = open(args['load'], 'r')
         load(input, args['host'], args['port'], None, args['db'])
         input.close()
     else:
-        print 'either load or save option should be enabled'
+        print('either load or save option should be enabled')
         return False
 
     return True
