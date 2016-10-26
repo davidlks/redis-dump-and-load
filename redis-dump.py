@@ -134,7 +134,7 @@ def process(options):
         output.close()
     elif options.load:
         input = open(args['load'], 'r')
-        load(input, args['host'], args['port'], None, args['db'])
+        load(input, args['host'], args['port'], args['password'], args['db'])
         input.close()
     else:
         print('either load or save option should be enabled')
